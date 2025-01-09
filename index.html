@@ -103,94 +103,126 @@
         <div class="statistics" id="statistics"></div>
     </div>
 
-    <div class="container">
-        <div class="question" id="question2">Quel est le plus grand océan du monde ?</div>
-        <div class="answers" id="answers2">
-            <button onclick="checkAnswer(this, false, 'L\'océan Atlantique est le deuxième plus grand océan.')">Atlantique</button>
-            <button onclick="checkAnswer(this, true, 'Correct ! L\'océan Pacifique est le plus grand océan du monde.')">Pacifique</button>
-            <button onclick="checkAnswer(this, false, 'L\'océan Indien est le troisième plus grand océan.')">Indien</button>
-            <button onclick="checkAnswer(this, false, 'L\'océan Arctique est le plus petit océan.')">Arctique</button>
-        </div>
-        <div class="result" id="result2"></div>
-        <div class="explanation" id="explanation2"></div>
-    </div>
-
-    <div class="container">
-        <div class="question" id="question3">Quel est le plus haut sommet du monde ?</div>
-        <div class="answers" id="answers3">
-            <button onclick="checkAnswer(this, false, 'Le Mont Blanc est le plus haut sommet des Alpes.')">Mont Blanc</button>
-            <button onclick="checkAnswer(this, true, 'Correct ! L\'Everest est le plus haut sommet du monde.')">Everest</button>
-            <button onclick="checkAnswer(this, false, 'Le K2 est le deuxième plus haut sommet du monde.')">K2</button>
-            <button onclick="checkAnswer(this, false, 'Le Kilimandjaro est le plus haut sommet d\'Afrique.')">Kilimandjaro</button>
-        </div>
-        <div class="result" id="result3"></div>
-        <div class="explanation" id="explanation3"></div>
-    </div>
-
     <script>
+        let questions = [
+            {
+                question: "Quelle est la capitale de la France ?",
+                answers: [
+                    { text: "Londres", correct: false, explanation: "Londres est la capitale du Royaume-Uni." },
+                    { text: "Paris", correct: true, explanation: "Correct ! Paris est bien la capitale de la France." },
+                    { text: "Berlin", correct: false, explanation: "Berlin est la capitale de l'Allemagne." },
+                    { text: "Madrid", correct: false, explanation: "Madrid est la capitale de l'Espagne." }
+                ]
+            },
+            {
+                question: "Quel est le plus grand océan du monde ?",
+                answers: [
+                    { text: "Atlantique", correct: false, explanation: "L'océan Atlantique est le deuxième plus grand océan." },
+                    { text: "Pacifique", correct: true, explanation: "Correct ! L'océan Pacifique est le plus grand océan du monde." },
+                    { text: "Indien", correct: false, explanation: "L'océan Indien est le troisième plus grand océan." },
+                    { text: "Arctique", correct: false, explanation: "L'océan Arctique est le plus petit océan." }
+                ]
+            },
+            {
+                question: "Quel est le plus haut sommet du monde ?",
+                answers: [
+                    { text: "Mont Blanc", correct: false, explanation: "Le Mont Blanc est le plus haut sommet des Alpes." },
+                    { text: "Everest", correct: true, explanation: "Correct ! L'Everest est le plus haut sommet du monde." },
+                    { text: "K2", correct: false, explanation: "Le K2 est le deuxième plus haut sommet du monde." },
+                    { text: "Kilimandjaro", correct: false, explanation: "Le Kilimandjaro est le plus haut sommet d'Afrique." }
+                ]
+            }
+        ];
+
+        let currentQuestionIndex = 0;
         let timer = 15;
-        let totalQuestions = 3; // Updated number of questions in the quiz
         let answeredQuestions = 0;
         let correctAnswers = 0;
         let totalTime = 0;
         const timerElement = document.getElementById('timer');
+        const questionElement = document.getElementById('question');
+        const answersElement = document.getElementById('answers');
+        const resultElement = document.getElementById('result');
+        const explanationElement = document.getElementById('explanation');
+        const statisticsElement = document.getElementById('statistics');
 
-        const interval = setInterval(() => {
-            timer--;
-            totalTime++;
-            timerElement.textContent = `Temps restant : ${timer}s`;
+        function startTimer() {
+            const interval = setInterval(() => {
+                timer--;
+                totalTime++;
+                timerElement.textContent = `Temps restant : ${timer}s`;
 
-            if (timer <= 0) {
-                clearInterval(interval);
-                document.querySelectorAll('.answers button').forEach(button => button.disabled = true);
-                const resultDiv = document.getElementById('result');
-                resultDiv.style.display = 'block';
-                resultDiv.textContent = 'Temps écoulé !';
-                resultDiv.style.color = 'red';
-                showStatistics();
-            }
-        }, 1000);
+                if (timer <= 0) {
+                    clearInterval(interval);
+                    document.querySelectorAll('.answers button').forEach(button => button.disabled = true);
+                    resultElement.style.display = 'block';
+                    resultElement.textContent = 'Temps écoulé !';
+                    resultElement.style.color = 'red';
+                    explanationElement.textContent = '';
+                    showStatistics();
+                }
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            timer = 15;
+            startTimer();
+            const currentQuestion = questions[currentQuestionIndex];
+            questionElement.textContent = currentQuestion.question;
+            answersElement.innerHTML = '';
+            currentQuestion.answers.forEach(answer => {
+                const button = document.createElement('button');
+                button.textContent = answer.text;
+                button.onclick = () => checkAnswer(button, answer.correct, answer.explanation);
+                answersElement.appendChild(button);
+            });
+            resultElement.style.display = 'none';
+            explanationElement.style.display = 'none';
+        }
 
         function checkAnswer(button, isCorrect, explanationText) {
-            clearInterval(interval);
+            clearInterval(startTimer);
             document.querySelectorAll('.answers button').forEach(btn => btn.disabled = true);
 
-            const resultDiv = document.getElementById('result');
-            const explanationDiv = document.getElementById('explanation');
-
-            resultDiv.style.display = 'block';
-            explanationDiv.style.display = 'block';
+            resultElement.style.display = 'block';
+            explanationElement.style.display = 'block';
 
             if (isCorrect) {
-                resultDiv.textContent = 'Bonne réponse !';
-                resultDiv.style.color = 'green';
+                resultElement.textContent = 'Bonne réponse !';
+                resultElement.style.color = 'green';
                 button.classList.add('correct');
                 correctAnswers++;
             } else {
-                resultDiv.textContent = 'Mauvaise réponse.';
-                resultDiv.style.color = 'red';
+                resultElement.textContent = 'Mauvaise réponse.';
+                resultElement.style.color = 'red';
                 button.classList.add('wrong');
             }
 
-            explanationDiv.textContent = explanationText;
+            explanationElement.textContent = explanationText;
             answeredQuestions++;
 
-            if (answeredQuestions === totalQuestions) {
-                showStatistics();
-            }
+            setTimeout(() => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    loadQuestion();
+                } else {
+                    showStatistics();
+                }
+            }, 2000);
         }
 
         function showStatistics() {
-            const statisticsDiv = document.getElementById('statistics');
-            statisticsDiv.style.display = 'block';
-            const averageTime = (totalTime / totalQuestions).toFixed(2);
-            statisticsDiv.innerHTML = `
+            statisticsElement.style.display = 'block';
+            const averageTime = (totalTime / questions.length).toFixed(2);
+            statisticsElement.innerHTML = `
                 <h2>Statistiques</h2>
-                <p>Questions répondues : ${answeredQuestions}/${totalQuestions}</p>
+                <p>Questions répondues : ${answeredQuestions}/${questions.length}</p>
                 <p>Bonnes réponses : ${correctAnswers}</p>
                 <p>Temps moyen par question : ${averageTime} secondes</p>
             `;
         }
+
+        loadQuestion();
     </script>
 </body>
 </html>
